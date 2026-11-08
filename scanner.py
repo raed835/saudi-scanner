@@ -1,5 +1,3 @@
-Claude
-Scanner · PY
 import json, datetime as dt
 import numpy as np, pandas as pd, yfinance as yf
  
@@ -113,4 +111,3 @@ def main():
  
 if __name__ == "__main__":
     main()
- 
