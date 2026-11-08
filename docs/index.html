@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إشارات الأسهم السعودية</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14202b;--mut:#5b6b7a;--bd:#dde3ea;--ac:#0a7d4f;--bad:#c0392b;--bl:#1f6feb}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1519;--card:#18222a;--tx:#e8eef3;--mut:#93a3b1;--bd:#2a3a46;--ac:#3ecf8e;--bad:#ff7b6b;--bl:#6ea8ff}}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,Tahoma,Arial,sans-serif;line-height:1.6}
+main{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:1.3rem;margin:.2rem 0}.s{color:var(--mut);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}
+th{color:var(--mut)}.e{color:var(--bl);font-weight:700}.st{color:var(--bad);font-weight:700}.t{color:var(--ac);font-weight:700}
+</style>
+</head>
+<body><main>
+<h1>إشارات الأسهم السعودية</h1>
+<p class="s" id="meta">جاري التحميل...</p>
+<div class="card"><table>
+<thead><tr><th>السهم</th><th>تاريخ الإشارة</th><th>الدخول</th><th>وقف الخسارة</th><th>الهدف 1</th><th>الهدف 2</th><th>RSI</th><th>السعر الحالي</th><th>التغير</th></tr></thead>
+<tbody id="tb"></tbody></table></div>
+<p class="s">الشروط: MACD يقطع الإشارة صعودًا، السعر فوق EMA50 وEMA50 فوق EMA200، RSI بين 50 و70، حجم أعلى من 1.2× المتوسط. للأغراض التعليمية وليست توصية استثمارية.</p>
+</main>
+<script>
+const f=x=>x.toFixed(2),esc=s=>String(s).replace(/[<>&]/g,'');
+fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{
+  document.getElementById('meta').textContent=`آخر تحديث: ${d.updated} (توقيت الرياض) | الأسهم المفحوصة: ${d.scanned} | الإشارات: ${d.signals.length}`+(d.failed.length?` | تعذر جلب: ${d.failed.join('، ')}`:'');
+  document.getElementById('tb').innerHTML=d.signals.length?d.signals.map(o=>{
+    const c=(o.last/o.entry-1)*100;
+    return `<tr><td>${esc(o.name)} <small>${esc(o.code)}</small></td><td>${o.date}</td><td class="e">${f(o.entry)}</td><td class="st">${f(o.stop)}</td><td class="t">${f(o.t1)}</td><td class="t">${f(o.t2)}</td><td>${o.rsi.toFixed(0)}</td><td>${f(o.last)}</td><td>${c>=0?'+':''}${c.toFixed(1)}%</td></tr>`}).join(''):'<tr><td colspan="9">لا توجد إشارات حاليًا</td></tr>';
+}).catch(()=>document.getElementById('meta').textContent='تعذر تحميل البيانات');
+</script></body></html>
