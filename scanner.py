@@ -1,22 +1,22 @@
 import json, datetime as dt
 import numpy as np, pandas as pd, yfinance as yf
- 
+
 LOOK = 3      # عدد أيام البحث عن إشارة
 PIVOT = 10
- 
+
 def ema(s, n): return s.ewm(span=n, adjust=False).mean()
- 
+
 def rsi(c, n=14):
     d = c.diff()
     up, dn = d.clip(lower=0), -d.clip(upper=0)
     rs = up.ewm(alpha=1/n, adjust=False).mean() / dn.ewm(alpha=1/n, adjust=False).mean()
     return 100 - 100 / (1 + rs)
- 
+
 def atr(df, n=14):
     pc = df.Close.shift()
     tr = pd.concat([df.High-df.Low, (df.High-pc).abs(), (df.Low-pc).abs()], axis=1).max(axis=1)
     return tr.ewm(alpha=1/n, adjust=False).mean()
- 
+
 def pivots(df):
     lo, hi = df.Low.values, df.High.values
     n = len(df); LL = np.full(n, np.nan); LH = np.full(n, np.nan)
@@ -28,7 +28,7 @@ def pivots(df):
             if hi[j] >= hi[j-PIVOT:j+PIVOT+1].max(): lh = hi[j]
         LL[i], LH[i] = ll, lh
     return LL, LH
- 
+
 def analyze(df):
     if len(df) < 210: return None
     c = df.Close
@@ -55,7 +55,7 @@ def analyze(df):
         return dict(date=str(df.index[i].date()), entry=en, stop=float(stop), t1=float(t1),
                     t2=float(t2), rsi=float(r.iloc[i]), last=float(c.iloc[-1]))
     return None
- 
+
 def fetch(tick):
     frames = {}
     for i in range(0, len(tick), 40):
@@ -76,7 +76,7 @@ def fetch(tick):
             except Exception:
                 pass
     return frames
- 
+
 def main():
     items = []
     for line in open("tickers.txt", encoding="utf-8"):
@@ -108,6 +108,6 @@ def main():
     with open("docs/data.json", "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     print(f"total={len(items)} ok={ok} signals={len(signals)} failed={failed}")
- 
+
 if __name__ == "__main__":
     main()
